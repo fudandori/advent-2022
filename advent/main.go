@@ -5,7 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
+
+const ROUND_WIN = 6
+const ROUND_DRAW = 3
+const ROCK = "A"
+const PAPER = "B"
+const SCISSORS = "C"
+const FAKE_WIN = "Z"
+const FAKE_DRAW = "Y"
 
 func readNumber() int {
 	i := 0
@@ -28,14 +37,19 @@ func readNumber() int {
 	return i
 }
 
+func open(n string) *bufio.Scanner {
+
+	f, _ := os.Open("../files/" + n + ".txt")
+	return bufio.NewScanner(f)
+}
+
 func day1() {
-	f, _ := os.Open("../files/1.txt")
-	scanner := bufio.NewScanner(f)
 
 	var total, acc, mElf int
 	var top3 [3]int
 	var top3Elves [3]int
 
+	scanner := open("1")
 	for elf := 1; scanner.Scan(); {
 		value := scanner.Text()
 		if value != "" {
@@ -74,11 +88,123 @@ func day1() {
 
 }
 
+func rock(hand string) int {
+	if hand == ROCK {
+		return ROUND_DRAW
+	}
+	if hand == SCISSORS {
+		return ROUND_WIN
+	}
+	return 0
+}
+
+func paper(hand string) int {
+	if hand == PAPER {
+		return ROUND_DRAW
+	}
+	if hand == ROCK {
+		return ROUND_WIN
+	}
+	return 0
+}
+
+func scissors(hand string) int {
+	if hand == SCISSORS {
+		return ROUND_DRAW
+	}
+	if hand == PAPER {
+		return ROUND_WIN
+	}
+	return 0
+}
+
+func roundScore(input string) int {
+	split := strings.Split(input, " ")
+	hand := split[0]
+
+	var score int
+	switch split[1] {
+	case "X":
+		score += rock(hand) + 1
+	case "Y":
+		score += paper(hand) + 2
+	case "Z":
+		score += scissors(hand) + 3
+	}
+
+	return score
+}
+
+func fakeRock(result string) int {
+	if result == FAKE_DRAW {
+		return ROUND_DRAW + 1
+	}
+	if result == FAKE_WIN {
+		return ROUND_WIN + 2
+	}
+
+	return 3
+}
+
+func fakePaper(result string) int {
+	if result == FAKE_DRAW {
+		return ROUND_DRAW + 2
+	}
+	if result == FAKE_WIN {
+		return ROUND_WIN + 3
+	}
+
+	return 1
+}
+
+func fakeScissors(result string) int {
+	if result == FAKE_DRAW {
+		return ROUND_DRAW + 3
+	}
+	if result == FAKE_WIN {
+		return ROUND_WIN + 1
+	}
+
+	return 2
+}
+
+func fakeRoundScore(input string) int {
+	split := strings.Split(input, " ")
+	hand, result := split[0], split[1]
+
+	switch hand {
+	case ROCK:
+		return fakeRock(result)
+	case PAPER:
+		return fakePaper(result)
+	case SCISSORS:
+		return fakeScissors(result)
+	}
+
+	return 0
+}
+
+func day2() {
+	scanner := open("2")
+
+	var realScore int
+	var score int
+	for scanner.Scan() {
+		line := scanner.Text()
+		score += roundScore(line)
+		realScore += fakeRoundScore(line)
+	}
+
+	fmt.Printf("The figured total score is %d, but the real strategy score is %d", score, realScore)
+}
+
 func main() {
 	n := readNumber()
 
 	switch n {
 	case 1:
 		day1()
+	case 2:
+		day2()
 	}
 }
