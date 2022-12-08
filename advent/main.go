@@ -198,6 +198,94 @@ func day2() {
 	fmt.Printf("The figured total score is %d, but the real strategy score is %d", score, realScore)
 }
 
+func repeated(str string, input string) int {
+	for _, ch := range str {
+		if strings.ContainsAny(input, strconv.QuoteRune(ch)) {
+			return int(ch)
+		}
+	}
+
+	return 0
+}
+
+func repeatedIn3(str [3]string) int {
+	for _, ch := range str[0] {
+		if strings.ContainsAny(str[1], strconv.QuoteRune(ch)) && strings.ContainsAny(str[2], strconv.QuoteRune(ch)) {
+			return int(ch)
+		}
+	}
+
+	return 0
+}
+
+func priority(n int) int {
+	if n < 97 {
+		return n - 38
+	}
+
+	return n - 96
+}
+
+func day3() {
+	scanner := open("3")
+
+	var acc, acc2 int
+	var group [3]string
+	for i := 1; scanner.Scan(); i++ {
+		line := scanner.Text()
+		c1, c2 := line[:len(line)/2], line[len(line)/2:]
+		rep := repeated(c1, c2)
+		acc += priority(rep)
+
+		if i%3 == 0 {
+			group[0] = line
+			rep3 := repeatedIn3(group)
+			acc2 += priority(rep3)
+		} else if i%2 == 0 {
+			group[1] = line
+		} else {
+			group[2] = line
+		}
+
+	}
+
+	fmt.Printf("The first sum of priorities is %d\n", acc)
+	fmt.Printf("The second sum of priorities is %d", acc2)
+}
+
+func day4() {
+	scanner := open("4")
+
+	var acc, ovrlps int
+	for scanner.Scan() {
+		line := scanner.Text()
+		split := strings.Split(line, ",")
+		l1, h1, l2, h2 := strings.Split(split[0], "-")[0], strings.Split(split[0], "-")[1], strings.Split(split[1], "-")[0], strings.Split(split[1], "-")[1]
+
+		l1 = fmt.Sprintf("%02s", l1)
+		l2 = fmt.Sprintf("%02s", l2)
+		h1 = fmt.Sprintf("%02s", h1)
+		h2 = fmt.Sprintf("%02s", h2)
+
+		firstInside := l1 >= l2 && h1 <= h2
+		secondInside := l2 >= l1 && h2 <= h1
+
+		firstOverlaps := l2 >= l1 && l2 <= h1
+		secondOverlaps := l1 > l2 && l1 <= h2
+
+		if firstInside || secondInside {
+			acc++
+		}
+
+		if firstOverlaps || secondOverlaps {
+			ovrlps++
+		}
+	}
+
+	fmt.Printf("%d assigments contained, %d overlaps", acc, ovrlps)
+
+}
+
 func main() {
 	n := readNumber()
 
@@ -206,5 +294,9 @@ func main() {
 		day1()
 	case 2:
 		day2()
+	case 3:
+		day3()
+	case 4:
+		day4()
 	}
 }
