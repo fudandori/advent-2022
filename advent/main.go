@@ -286,6 +286,86 @@ func day4() {
 
 }
 
+func getCargo() [][]string {
+	scanner := open("5")
+
+	var cargo [][]string
+
+	for lvl := 0; scanner.Scan(); lvl++ {
+		line := scanner.Text()
+		if strings.Contains(line, "[") {
+			cargo = append(cargo, []string{})
+			for j := 0; 4*j < len(line); j++ {
+				container := line[4*j+1 : 4*j+2]
+				cargo[lvl] = append(cargo[lvl], container)
+			}
+		} else {
+			break
+		}
+
+	}
+
+	var tCargo [][]string
+	x, y := len(cargo[0]), len(cargo)
+
+	for i := 0; i < x; i++ {
+		tCargo = append(tCargo, []string{})
+		for j := 0; j < y; j++ {
+			vIndex := y - 1 - j
+			value := cargo[vIndex][i]
+
+			if value != " " {
+				tCargo[i] = append(tCargo[i], value)
+			}
+		}
+	}
+
+	return tCargo
+}
+
+func parseInstruction(s string) []int {
+	s = strings.ReplaceAll(s, "move ", "")
+	s = strings.ReplaceAll(s, " from ", ";")
+	s = strings.ReplaceAll(s, " to ", ";")
+	split := strings.Split(s, ";")
+
+	x, _ := strconv.Atoi(split[0])
+	y, _ := strconv.Atoi(split[1])
+	z, _ := strconv.Atoi(split[2])
+
+	return []int{x, y, z}
+}
+
+func day5() {
+	cargo := getCargo()
+	scanner := open("5")
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "move") {
+			instSet := parseInstruction(line)
+
+			for i := 0; i < instSet[0]; i++ {
+				from := instSet[1] - 1
+				to := instSet[2] - 1
+
+				cargo[to] = append(cargo[to], cargo[from][len(cargo[from])-1])
+				cargo[from] = cargo[from][:len(cargo[from])-1]
+
+			}
+		}
+
+	}
+
+	line := "The first crates are "
+	for i := 0; i < len(cargo); i++ {
+		l := cargo[i][len(cargo[i])-1]
+		line += "[" + l + "] "
+	}
+
+	fmt.Println(line)
+}
+
 func main() {
 	n := readNumber()
 
@@ -298,5 +378,7 @@ func main() {
 		day3()
 	case 4:
 		day4()
+	case 5:
+		day5()
 	}
 }
