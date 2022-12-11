@@ -39,7 +39,7 @@ func readNumber() int {
 
 func open(n string) *bufio.Scanner {
 
-	f, _ := os.Open("../files/" + n + ".txt")
+	f, _ := os.Open("files/" + n + ".txt")
 	return bufio.NewScanner(f)
 }
 
